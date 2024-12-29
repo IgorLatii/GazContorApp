@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Указываем доступ к папке для сохранения фото -->
+    <external-files-path
+        name="images"
+        path="Pictures" />
+</paths>
