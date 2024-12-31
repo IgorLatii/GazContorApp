@@ -35,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -47,8 +48,24 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+
 public class MainActivity extends AppCompatActivity {
     private TextView userInfo;
+    private TextView contractNumberTextView;
+    private TextView meterNumberTextView;
+    private TextView contractNumberValue;
+    private TextView meterNumberValue;
+    private TextView loyaltyTextView;
+    private TextView loyaltyValueTextView;
     private EditText meterReading;
     private ImageView photoPreview;
     private Button capturePhotoButton, submitButton;
@@ -63,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> takePictureLauncher;
     private Bitmap currentPhotoBitmap;
     private ProgressBar progressBar;
+    private String processedBarcodeValue;
+    private  boolean meterNumberContainsRecognizedString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +102,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         userInfo = findViewById(R.id.userInfo);
+        contractNumberTextView = findViewById(R.id.contractNumberTextView);
+        meterNumberTextView = findViewById(R.id.meterNumberTextView);
+        contractNumberValue = findViewById(R.id.contractNumberValueTextView);
+        meterNumberValue = findViewById(R.id.meterNumberValueTextView);
+        loyaltyValueTextView = findViewById(R.id.loyaltyValueTextView);
+
         meterReading = findViewById(R.id.meterReading);
         photoPreview = findViewById(R.id.photoPreview);
         capturePhotoButton = findViewById(R.id.capturePhotoButton);
@@ -94,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
 
-        userInfo.setText("Numărul contractului - " + contractNumber + " \n" +
-                "Numărul contorului - " + meterNumber);
+        contractNumberValue.setText(contractNumber);
+        meterNumberValue.setText(meterNumber);
 
         // Add hamburger in ActionBar
         toggle = new ActionBarDrawerToggle(
@@ -159,19 +184,20 @@ public class MainActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         try {
-                            // Загружаем фото из URI в Bitmap
+                            // Downloar photo from URI in Bitmap
                             InputStream inputStream = getContentResolver().openInputStream(photoUri);
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                            // Валидация фото
+                            // Photo validation
                             if (ValidationUtils.isValidPhoto(bitmap)) {
-                                currentPhotoBitmap = bitmap; // Сохраняем фото
-                                photoPreview.setImageBitmap(currentPhotoBitmap); // Предпросмотр
-                                photoErrorTextView.setVisibility(View.GONE);      // Скрыть ошибку
+                                currentPhotoBitmap = bitmap; // Save photo
+                                photoPreview.setImageBitmap(currentPhotoBitmap); // Preview
+                                photoErrorTextView.setVisibility(View.GONE);      // Hide error
+                                processImageForRecognition(currentPhotoBitmap);
                             } else {
                                 photoErrorTextView.setText("Фото не соответствует требованиям.");
-                                photoErrorTextView.setVisibility(View.VISIBLE);  // Показать ошибку
-                                currentPhotoBitmap = null;                      // Сброс фото
+                                photoErrorTextView.setVisibility(View.VISIBLE);  // Show error
+                                currentPhotoBitmap = null;                      // Cancel photo
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -209,12 +235,90 @@ public class MainActivity extends AppCompatActivity {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
+    private void processImageForRecognition(Bitmap bitmap) {
+        // Bitmap into ML Kit InputImage
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+        processBarcode(image);
+        processTextRecognition(image);
+    }
+
+    private void processBarcode(InputImage image) {
+        BarcodeScannerOptions options =
+                new BarcodeScannerOptions.Builder()
+                        .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
+                        .build();
+
+        BarcodeScanner scanner = BarcodeScanning.getClient(options);
+
+        scanner.process(image)
+                .addOnSuccessListener(barcodes -> {
+//                    if (barcodes.isEmpty()){
+//                            Toast.makeText(this, "Штрих-код не найден. Подведите ближе камеру", Toast.LENGTH_LONG).show();
+//                    }
+                    for (Barcode barcode : barcodes) {
+                        String barcodeValue = barcode.getDisplayValue();
+                        if (barcodeValue != null) {
+//                            Toast.makeText(this, "Штрих-код: " + barcodeValue, Toast.LENGTH_LONG).show();
+                            if (barcodeValue.length() == 8){
+                                processedBarcodeValue = barcodeValue;
+                            } else if (barcodeValue.length() == 12) {
+                                processedBarcodeValue = barcodeValue.substring(4);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Ошибка сканирования штрих-кода", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void processTextRecognition(InputImage image) {
+        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+        recognizer.process(image)
+                .addOnSuccessListener(visionText -> {
+                    extractMeterData(visionText); // Data analysing
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Ошибка распознавания текста", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void extractMeterData(Text visionText) {
+        String detectedText = visionText.getText();
+        ArrayList<String> resultStrings = new ArrayList<>();
+
+        // Splitting text into lines
+        String[] splitLines = detectedText.split("\n");
+        for (String line : splitLines) {
+            line = line.replaceAll("[^0-9]", ""); // Remove all non-numeric characters
+            if (line.length() >= 5 && line.length() <= 8) { // Check for at least 5-digit and not more 8-digit number
+                resultStrings.add(line);
+            }
+        }
+
+        // Checking for number matches
+        for (String resultString : resultStrings) {
+            if (meterNumber.contains(resultString)) {
+                meterNumberContainsRecognizedString = true;
+ //               Toast.makeText(this, "Номер счетчика подтвержден: " + resultString, Toast.LENGTH_LONG).show();
+                break;
+            } else {
+                meterNumberContainsRecognizedString = false;
+            }
+        }
+    }
+
     private void submitData() {
         String reading = meterReading.getText().toString().trim();
 
         // Checking data entry
         boolean isMeterReadingValid = ValidationUtils.isValidMeterReading(reading);
         boolean isPhotoValid = ValidationUtils.isValidPhoto(currentPhotoBitmap);
+        boolean isMeterNumberValid = meterNumber.equals(processedBarcodeValue);
 
         // Input data validation
         if (!isMeterReadingValid) {
@@ -231,8 +335,15 @@ public class MainActivity extends AppCompatActivity {
             photoErrorTextView.setVisibility(View.GONE);
         }
 
-        // If both checks are passed, send the data
-        if (isMeterReadingValid && isPhotoValid) {
+        if (!isMeterNumberValid && !meterNumberContainsRecognizedString) {
+            photoErrorTextView.setText("Numărul contorului nu coincide. Încearcă din nou.");
+            photoErrorTextView.setVisibility(View.VISIBLE);
+        } else {
+            photoErrorTextView.setVisibility(View.GONE);
+        }
+
+        // If all checks are passed, send the data
+        if (isMeterReadingValid && isPhotoValid && (isMeterNumberValid || meterNumberContainsRecognizedString)) {
             uploadData(contractNumber, meterNumber, reading, currentPhotoBitmap);
         }
     }
@@ -243,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Convert photo to Base64
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        photoBitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
         String photoBase64 = Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP);
 
         // Forming a request
@@ -295,5 +406,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item); // Other menu items
     }
+
 
 }

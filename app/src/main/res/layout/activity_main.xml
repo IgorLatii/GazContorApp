@@ -8,105 +8,215 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-        <!-- Main -->
+    <!-- Main screen -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/welcome_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:text="Bine ați venit la Gaz Contor Control"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center" />
-
-            <TextView
-                android:id="@+id/userInfo"
+            <!-- User Information Group -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:padding="8dp" />
+                android:orientation="vertical"
+                android:background="@drawable/rounded_background"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
 
-            <!-- Instructions -->
-            <TextView
-                android:id="@+id/instructions"
+                <TextView
+                    android:id="@+id/userInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Date utilizator"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:paddingBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Contract number label -->
+                    <TextView
+                        android:id="@+id/contractNumberTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Numărul contractului: "
+                        android:textSize="14sp"
+                        android:paddingBottom="4dp" />
+
+                    <!-- Contract number value -->
+                    <TextView
+                        android:id="@+id/contractNumberValueTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="---"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:gravity="end"
+                        android:paddingBottom="4dp" />
+                </LinearLayout>
+
+                <!-- Group for the row with the counter number -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Counter number label -->
+                    <TextView
+                        android:id="@+id/meterNumberTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Numărul contorului: "
+                        android:textSize="14sp"
+                        android:paddingBottom="4dp"/>
+
+                    <!-- Value of counter number -->
+                    <TextView
+                        android:id="@+id/meterNumberValueTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="---"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:gravity="end"
+                        android:paddingBottom="4dp"/>
+                </LinearLayout>
+
+                <!-- Group for loyalty value -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Loyalty label -->
+                    <TextView
+                        android:id="@+id/loyaltyTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Puncte de fidelitate: "
+                        android:textSize="14sp" />
+
+                    <!-- Value of loyalty points -->
+                    <TextView
+                        android:id="@+id/loyaltyValueTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="---"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:gravity="end" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Input data group -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/welcome_message"
-                android:layout_marginTop="10dp"
-                android:layout_centerHorizontal="true"
-                android:text="Introduceți vă rog aici indicii contorului dvs."
-                android:textSize="16sp"
-                android:gravity="center" />
+                android:orientation="vertical"
+                android:background="@drawable/rounded_background"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
 
+                <TextView
+                    android:id="@+id/instructions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Introduceți vă rog aici indicii contorului dvs."
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp" />
 
-            <EditText
-                android:id="@+id/meterReading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:height="50dp"
-                android:inputType="text"
-                android:hint="Indici contor (ex.: 12345,123)" />
+                <EditText
+                    android:id="@+id/meterReading"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/edit_text_background"
+                    android:hint="Indici contor (ex.: 12345,123)"
+                    android:textColor="#212529"
+                    android:padding="12dp" />
 
-            <TextView
-                android:id="@+id/meterReadingErrorTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_dark"
-                android:visibility="gone" />
+                <TextView
+                    android:id="@+id/meterReadingErrorTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:visibility="gone"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
 
-            <ImageView
-                android:id="@+id/photoPreview"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:scaleType="centerCrop" />
+            <!-- Photo -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/rounded_background"
+                    android:padding="16dp"
+                    android:layout_marginBottom="16dp">
 
-            <TextView
-                android:id="@+id/photoErrorTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_dark"
-                android:visibility="gone"
-                android:text="Ошибка валидации фото" />
+                <ImageView
+                    android:id="@+id/photoPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="8dp"
+                    android:scaleType="centerCrop" />
 
-            <Button
-                android:id="@+id/capturePhotoButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:padding="12dp"
-                android:text="FOTOGRAFIAZĂ CONTORUL" />
+                <TextView
+                    android:id="@+id/photoErrorTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:visibility="gone"
+                    android:layout_marginTop="4dp" />
 
-            <Button
-                android:id="@+id/submitButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:padding="12dp"
-                android:text="TRIMITE DATELE" />
+                <Button
+                    android:id="@+id/capturePhotoButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_background"
+                    android:text="FOTOGRAFIAZĂ CONTORUL"
+                    android:layout_marginBottom="8dp" />
+            </LinearLayout>
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/rounded_background"
+                    android:padding="16dp">
+                <Button
+                    android:id="@+id/submitButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_background"
+                    android:text="TRIMITE DATELE" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
         </LinearLayout>
+    </ScrollView>
 
-    <!-- Navigation View -->
+    <!-- Side menu -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"

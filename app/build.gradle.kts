@@ -44,4 +44,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation (libs.mlkit.text.recognition)
+    implementation (libs.mlkit.barcode.scanning)
+    implementation (libs.mlkit.camera)
 }
